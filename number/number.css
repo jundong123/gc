@@ -1,0 +1,276 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #111827;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+}
+
+h1 {
+    color: #38bdf8;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #cbd5e1;
+    margin-bottom: 20px;
+}
+
+/* Two-column layout */
+
+.game-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    max-width: 1000px;
+    margin: 0 auto;
+    align-items: stretch;
+}
+
+.left-column,
+.right-column {
+    background-color: #1e293b;
+    border-radius: 12px;
+    padding: 15px;
+    min-width: 0;
+    min-height: 500px;
+}
+
+/* Secret number */
+
+#secret {
+    font-size: 30px;
+    letter-spacing: 10px;
+    color: #38bdf8;
+}
+
+#remaining {
+    color: #38bdf8;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Remaining attempts progress bar */
+
+.progress-bar {
+    width: 80%;
+    height: 10px;
+    margin: 15px auto 25px;
+    background-color: #475569;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#progress {
+    width: 100%;
+    height: 100%;
+    background-color: #22c55e;
+    border-radius: 10px;
+    transition: width 0.3s, background-color 0.3s;
+}
+
+/* Input and buttons */
+
+input {
+    width: 220px;
+    max-width: 100%;
+    padding: 12px;
+    font-size: 26px;
+    text-align: center;
+    letter-spacing: 6px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
+
+input:focus {
+    box-shadow: 0 0 0 3px #38bdf8;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+button {
+    padding: 12px 20px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+button:hover {
+    background-color: #1d4ed8;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#restart,
+#close-popup {
+    background-color: #475569;
+}
+
+#message {
+    color: #facc15;
+    font-weight: bold;
+    min-height: 25px;
+}
+
+/* Game rules */
+
+.rules {
+    text-align: left;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #0f172a;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.rules h3 {
+    margin-top: 0;
+}
+
+.rules ul {
+    padding-left: 20px;
+}
+
+/* Results table */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th,
+td {
+    padding: 14px;
+    border-bottom: 1px solid #475569;
+}
+
+th {
+    background-color: #334155;
+}
+
+td {
+    font-size: 18px;
+}
+
+tbody tr:hover {
+    background-color: #334155;
+}
+
+.result-a {
+    color: #4ade80;
+    font-weight: bold;
+}
+
+.result-b {
+    color: #facc15;
+    font-weight: bold;
+}
+
+.winning-row {
+    background-color: #14532d;
+}
+
+/* Failure popup */
+
+.popup {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.popup-content {
+    background-color: #1e293b;
+    border: 1px solid #64748b;
+    border-radius: 16px;
+    padding: 30px;
+    width: 380px;
+    max-width: 100%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    animation: popup-animation 0.3s ease-out;
+}
+
+.popup-content h2 {
+    color: #f87171;
+}
+
+.popup-content button {
+    margin: 5px;
+}
+
+.emoji {
+    font-size: 50px;
+}
+
+#answer {
+    font-size: 42px;
+    letter-spacing: 10px;
+    color: #facc15;
+}
+
+@keyframes popup-animation {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Fireworks canvas */
+
+#fireworks {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* Mobile-friendly layout */
+
+@media (max-width: 700px) {
+
+    body {
+        padding: 15px;
+    }
+
+    .game-container {
+        grid-template-columns: 1fr;
+    }
+
+    .left-column,
+    .right-column {
+        min-height: auto;
+        padding: 20px;
+    }
+}

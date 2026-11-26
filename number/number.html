@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Number</title>
+    <link rel="stylesheet" href="number.css">
+</head>
+
+<body>
+
+    <div class="game-container">
+
+        <!-- Left column: Game controls -->
+        <div class="left-column">
+
+            <h2>Guess a Number</h2>
+
+            <h2 id="secret">? ? ? ?</h2>
+
+            <p>
+                Remaining attempts:
+                <span id="remaining">8</span> / 8
+            </p>
+
+            <div class="progress-bar">
+                <div id="progress"></div>
+            </div>
+
+            <input type="text"
+                   id="guess"
+                   maxlength="4"
+                   inputmode="numeric"
+                   autocomplete="off"
+                   placeholder="Enter 4 digits">
+
+            <div class="buttons">
+                <button id="submit">Guess</button>
+                <button id="restart">New Game</button>
+            </div>
+
+            <!-- <p id="message"></p> -->
+
+            <div class="rules">
+
+                <h3>Game Rules</h3>
+
+                <ul>
+                    <li>Guess the number within 8 attempts.</li>
+                    <li>The number contains four different digits.</li>
+                    <li>The first digit cannot be zero.</li>
+                    <li>Invalid guesses do not count.</li>
+                </ul>
+
+                <p>
+                    <span class="result-a">A:</span>
+                    Correct digit and correct position.
+                </p>
+
+                <p>
+                    <span class="result-b">B:</span>
+                    Correct digit but wrong position.
+                </p>
+
+                <p>Get 4A0B to win the game!</p>
+
+            </div>
+
+        </div>
+
+        <!-- Right column: Guess results -->
+        <div class="right-column">
+
+            <h2>Results</h2>
+
+            <p>
+                Attempts: <span id="attempts">0</span> / 8
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Attempt</th>
+                        <th>Guess</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+
+                <tbody id="history"></tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- Failure popup -->
+    <div id="popup" class="popup">
+
+        <div class="popup-content">
+
+            <div class="emoji">😔</div>
+
+            <h2>Game Over!</h2>
+
+            <p>You have used all 8 attempts.</p>
+
+            <p>The correct number was:</p>
+
+            <h2 id="answer"></h2>
+
+            <button id="try-again">Try Again</button>
+            <button id="close-popup">Close</button>
+
+        </div>
+
+    </div>
+
+    <!-- Fireworks animation -->
+    <canvas id="fireworks"></canvas>
+
+    <script src="number.js"></script>
+
+</body>
+</html>
