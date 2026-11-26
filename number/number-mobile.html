@@ -50,6 +50,8 @@
     li { min-height: 26px; }
     .keys button { min-height: 40px; }
   }
+  #fireworks { position: fixed; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+  .spark { position: absolute; width: 5px; height: 5px; border-radius: 50%; opacity: 0; }
 </style>
 </head>
 <body>
@@ -66,6 +68,7 @@
   <p id="message" role="status"></p>
   <div class="keys" aria-label="Number keypad"></div>
 </main>
+<div id="fireworks" aria-hidden="true"></div>
 <script>
   const maxAttempts = 8;
   const secretDisplay = document.querySelector('#secret');
@@ -75,6 +78,7 @@
   const submit = document.querySelector('#submit');
   const message = document.querySelector('#message');
   const keypad = document.querySelector('.keys');
+  const fireworks = document.querySelector('#fireworks');
   let secret, guess, attempts, finished;
 
   const rows = Array.from({ length: maxAttempts }, (_, index) => {
@@ -106,6 +110,7 @@
   }
 
   function reset() {
+    fireworks.replaceChildren();
     secret = String(1 + Math.floor(Math.random() * 9));
     while (secret.length < 4) {
       const digit = String(Math.floor(Math.random() * 10));
@@ -136,6 +141,35 @@
     updateGuess();
   }
 
+  function celebrateWin() {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const colors = ['#83f4c1', '#ffd190', '#b8a6ff', '#ff92ce', '#7ddfff'];
+    const bursts = [[25, 26], [72, 40], [47, 20]];
+    const radius = Math.min(innerWidth * 0.22, 100);
+    bursts.forEach(([left, top], burstIndex) => {
+      for (let index = 0; index < 20; index++) {
+        const angle = index * 2 * Math.PI / 20;
+        const distance = radius * (0.55 + Math.random() * 0.45);
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        const spark = document.createElement('span');
+        spark.className = 'spark';
+        spark.style.left = left + '%';
+        spark.style.top = top + '%';
+        spark.style.backgroundColor = colors[(index + burstIndex) % colors.length];
+        fireworks.append(spark);
+
+        const animation = spark.animate([
+          { transform: 'translate(0, 0) scale(1.4)', opacity: 1 },
+          { transform: 'translate(' + x + 'px, ' + y + 'px)', opacity: 0.85, offset: 0.64 },
+          { transform: 'translate(' + x + 'px, ' + (y + 25) + 'px) scale(0.3)', opacity: 0 }
+        ], { duration: 780, delay: burstIndex * 210, easing: 'ease-out' });
+        animation.onfinish = () => spark.remove();
+      }
+    });
+  }
+
   function checkGuess() {
     if (finished || guess.length !== 4) return;
     if (guess.startsWith('0') || new Set(guess).size !== 4) {
@@ -160,8 +194,10 @@
       for (const key of keypad.children) key.disabled = true;
     }
     row.classList.toggle('win', a === 4);
-    if (a === 4) message.textContent = attempts === 1 ? 'Solved in 1 guess!' : 'Solved in ' + attempts + ' guesses!';
-    else if (finished) message.textContent = 'Out of guesses. The number was ' + secret + '.';
+    if (a === 4) {
+      message.textContent = attempts === 1 ? 'Solved in 1 guess!' : 'Solved in ' + attempts + ' guesses!';
+      celebrateWin();
+    } else if (finished) message.textContent = 'Out of guesses. The number was ' + secret + '.';
     else message.textContent = guess + ' scored ' + a + 'A ' + b + 'B.';
     guess = '';
     updateGuess();
