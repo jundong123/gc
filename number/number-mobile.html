@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111425">
+<title>Guess the Number</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #111425; color: #f5f4ff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100svh; display: grid; place-items: center;
+    padding: max(8px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    background: radial-gradient(ellipse at top, #252344, transparent 70%); }
+  main { width: min(100%, 390px); display: grid; gap: 10px; }
+  header, .board, .entry { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  h1 { margin: 0; font-size: clamp(18px, 6vw, 28px); letter-spacing: -.045em; }
+  p { margin: 0; }
+  .rules { font-size: 12px; line-height: 1.55; color: #cecae4; }
+  .a { color: #83f4c1; }
+  .b { color: #ffd190; }
+  button { font: inherit; font-weight: 700; color: inherit; border: 1px solid #464663;
+    border-radius: 10px; background: #24243e; cursor: pointer; touch-action: manipulation; }
+  button:focus-visible { outline: 2px solid #ffd190; outline-offset: 2px; }
+  button:active { background: #44436b; }
+  button:disabled { opacity: .45; cursor: default; }
+  #restart { padding: 0 9px; min-height: 44px; flex: none; font-size: 12px; }
+  .board { padding: 6px 11px; background: #191b32; border: 1px solid #373756; border-radius: 10px; }
+  #secret { letter-spacing: .22em; font: 700 21px ui-monospace, monospace; color: #c4b7ff; }
+  #remaining { color: #dad5ef; font-size: 12px; }
+  ol { margin: 0; padding: 0; list-style: none; display: grid; grid-auto-flow: column;
+    grid-template: repeat(4, 1fr) / repeat(2, minmax(0, 1fr)); gap: 4px 8px; }
+  li { display: grid; grid-template-columns: 1.1em 1fr auto; align-items: center; gap: 4px;
+    padding: 3px 7px; min-height: 24px; background: #191b32; color: #c6c3da;
+    border-radius: 5px; font: 13px ui-monospace, monospace; }
+  li strong { color: #fff; letter-spacing: .04em; }
+  li.win { outline: 1px solid #83f4c1; }
+  .entry { display: grid; grid-template-columns: 1fr 1fr; }
+  #display { min-height: 44px; display: grid; place-items: center; background: #191b32;
+    border: 1px solid #7e70bf; border-radius: 10px; letter-spacing: .33em;
+    font: 700 22px ui-monospace, monospace; }
+  #submit { min-height: 44px; background: #b8a6ff; color: #18112c; border-color: transparent; }
+  #message { min-height: 2.8em; font-size: 13px; line-height: 1.4; color: #e4dfff; }
+  .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .keys button { min-height: clamp(44px, 8svh, 59px); font-size: 20px; }
+  .keys button[data-key="clear"] { font-size: 13px; }
+  @media (max-height: 570px) {
+    main { gap: 5px; }
+    .keys button { min-height: 40px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Guess the Number</h1><button id="restart" type="button">New game</button></header>
+  <p class="rules">Four different digits. No leading zero.<br>
+    <b class="a">A</b> Right digit and spot · <b class="b">B</b> Right digit, wrong spot</p>
+  <div class="board"><span id="secret" aria-label="Hidden number">? ? ? ?</span><span id="remaining"></span></div>
+  <ol id="history" aria-label="Guess history"></ol>
+  <div class="entry">
+    <output id="display" aria-label="Current guess"></output>
+    <button id="submit" type="button">Guess</button>
+  </div>
+  <p id="message" role="status"></p>
+  <div class="keys" aria-label="Number keypad"></div>
+</main>
+<script>
+  const maxAttempts = 8;
+  const secretDisplay = document.querySelector('#secret');
+  const remaining = document.querySelector('#remaining');
+  const historyList = document.querySelector('#history');
+  const display = document.querySelector('#display');
+  const submit = document.querySelector('#submit');
+  const message = document.querySelector('#message');
+  const keypad = document.querySelector('.keys');
+  let secret, guess, attempts, finished;
+
+  const rows = Array.from({ length: maxAttempts }, (_, index) => {
+    const row = document.createElement('li');
+    row.innerHTML = '<span></span><strong></strong><span><b class="a"></b> <b class="b"></b></span>';
+    row.firstElementChild.textContent = index + 1;
+    historyList.append(row);
+    return row;
+  });
+
+  for (const key of ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'clear', '0', 'delete']) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.key = key;
+    button.textContent = { clear: 'Clear', delete: '⌫' }[key] ?? key;
+    if (key === 'delete') button.setAttribute('aria-label', 'Delete last digit');
+    button.addEventListener('click', () => enter(key));
+    keypad.append(button);
+  }
+
+  function updateGuess() {
+    display.textContent = guess.padEnd(4, '–').split('').join(' ');
+    submit.disabled = finished || guess.length < 4;
+  }
+
+  function updateRemaining() {
+    const left = maxAttempts - attempts;
+    remaining.textContent = left === 1 ? '1 guess left' : left + ' guesses left';
+  }
+
+  function reset() {
+    secret = String(1 + Math.floor(Math.random() * 9));
+    while (secret.length < 4) {
+      const digit = String(Math.floor(Math.random() * 10));
+      if (!secret.includes(digit)) secret += digit;
+    }
+    guess = '';
+    attempts = 0;
+    finished = false;
+    secretDisplay.textContent = '? ? ? ?';
+    secretDisplay.setAttribute('aria-label', 'Hidden number');
+    message.textContent = 'Use the keypad to enter your first guess.';
+    for (const row of rows) {
+      row.classList.remove('win');
+      row.querySelector('strong').textContent = '—';
+      row.querySelector('.a').textContent = '';
+      row.querySelector('.b').textContent = '';
+    }
+    for (const key of keypad.children) key.disabled = false;
+    updateRemaining();
+    updateGuess();
+  }
+
+  function enter(key) {
+    if (finished) return;
+    if (key === 'clear') guess = '';
+    else if (key === 'delete') guess = guess.slice(0, -1);
+    else if (guess.length < 4) guess += key;
+    updateGuess();
+  }
+
+  function checkGuess() {
+    if (finished || guess.length !== 4) return;
+    if (guess.startsWith('0') || new Set(guess).size !== 4) {
+      message.textContent = 'Use four different digits and start with 1–9.';
+      return;
+    }
+    let a = 0;
+    let b = 0;
+    for (const [index, digit] of [...guess].entries()) {
+      if (digit === secret[index]) a++;
+      else if (secret.includes(digit)) b++;
+    }
+    const row = rows[attempts++];
+    row.querySelector('strong').textContent = guess;
+    row.querySelector('.a').textContent = a + 'A';
+    row.querySelector('.b').textContent = b + 'B';
+    updateRemaining();
+    finished = a === 4 || attempts === maxAttempts;
+    if (finished) {
+      secretDisplay.textContent = secret.split('').join(' ');
+      secretDisplay.setAttribute('aria-label', 'Answer ' + secret);
+      for (const key of keypad.children) key.disabled = true;
+    }
+    row.classList.toggle('win', a === 4);
+    if (a === 4) message.textContent = attempts === 1 ? 'Solved in 1 guess!' : 'Solved in ' + attempts + ' guesses!';
+    else if (finished) message.textContent = 'Out of guesses. The number was ' + secret + '.';
+    else message.textContent = guess + ' scored ' + a + 'A ' + b + 'B.';
+    guess = '';
+    updateGuess();
+  }
+
+  submit.addEventListener('click', checkGuess);
+  document.querySelector('#restart').addEventListener('click', reset);
+  document.addEventListener('keydown', (event) => {
+    if (event.ctrlKey || event.altKey || event.metaKey) return;
+    if (/^[0-9]$/.test(event.key)) enter(event.key);
+    else if (event.key === 'Backspace') enter('delete');
+    else if (event.key === 'Escape') enter('clear');
+    else if (event.key === 'Enter' && !event.target.closest('button')) checkGuess();
+    else return;
+    event.preventDefault();
+  });
+  reset();
+</script>
+</body>
+</html>
