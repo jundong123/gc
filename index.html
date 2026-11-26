@@ -67,7 +67,7 @@
         const isPhone = navigator.userAgentData?.mobile === true ||
             /iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent);
 
-        if (isPhone) {
+        if (~isPhone) {
             document.getElementById('number-game-link').href = 'number/number-mobile.html';
         }
     </script>

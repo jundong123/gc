@@ -14,9 +14,9 @@
     background: radial-gradient(ellipse at top, #252344, transparent 70%); }
   main { width: min(100%, 390px); display: grid; gap: 10px; }
   header, .board, .entry { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  h1 { margin: 0; font-size: clamp(18px, 6vw, 28px); letter-spacing: -.045em; }
+  h1 { margin: 0; font-size: clamp(21px, 6.8vw, 32px); letter-spacing: -.045em; }
   p { margin: 0; }
-  .rules { font-size: 12px; line-height: 1.55; color: #cecae4; }
+  .rules { font-size: 14px; line-height: 1.45; color: #cecae4; }
   .a { color: #83f4c1; }
   .b { color: #ffd190; }
   button { font: inherit; font-weight: 700; color: inherit; border: 1px solid #464663;
@@ -25,27 +25,29 @@
   button:active { background: #44436b; }
   button:disabled { opacity: .45; cursor: default; }
   #restart { padding: 0 9px; min-height: 44px; flex: none; font-size: 12px; }
-  .board { padding: 6px 11px; background: #191b32; border: 1px solid #373756; border-radius: 10px; }
-  #secret { letter-spacing: .22em; font: 700 21px ui-monospace, monospace; color: #c4b7ff; }
-  #remaining { color: #dad5ef; font-size: 12px; }
+  .board { padding: 8px 11px; background: #191b32; border: 1px solid #373756; border-radius: 10px; }
+  #secret { letter-spacing: .22em; font: 700 24px ui-monospace, monospace; color: #c4b7ff; }
+  #remaining { color: #dad5ef; font-size: 14px; }
   ol { margin: 0; padding: 0; list-style: none; display: grid; grid-auto-flow: column;
     grid-template: repeat(4, 1fr) / repeat(2, minmax(0, 1fr)); gap: 4px 8px; }
   li { display: grid; grid-template-columns: 1.1em 1fr auto; align-items: center; gap: 4px;
-    padding: 3px 7px; min-height: 24px; background: #191b32; color: #c6c3da;
-    border-radius: 5px; font: 13px ui-monospace, monospace; }
+    padding: 3px 7px; min-height: 28px; background: #191b32; color: #c6c3da;
+    border-radius: 5px; font: 18px ui-monospace, monospace; }
   li strong { color: #fff; letter-spacing: .04em; }
   li.win { outline: 1px solid #83f4c1; }
   .entry { display: grid; grid-template-columns: 1fr 1fr; }
   #display { min-height: 44px; display: grid; place-items: center; background: #191b32;
     border: 1px solid #7e70bf; border-radius: 10px; letter-spacing: .33em;
-    font: 700 22px ui-monospace, monospace; }
+    font: 700 17px ui-monospace, monospace; }
   #submit { min-height: 44px; background: #b8a6ff; color: #18112c; border-color: transparent; }
   #message { min-height: 2.8em; font-size: 13px; line-height: 1.4; color: #e4dfff; }
-  .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-  .keys button { min-height: clamp(44px, 8svh, 59px); font-size: 20px; }
+  .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+    width: min(100%, 290px); justify-self: center; }
+  .keys button { min-height: 44px; font-size: 17px; }
   .keys button[data-key="clear"] { font-size: 13px; }
   @media (max-height: 570px) {
     main { gap: 5px; }
+    li { min-height: 26px; }
     .keys button { min-height: 40px; }
   }
 </style>
